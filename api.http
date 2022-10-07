@@ -28,3 +28,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiO
 ###
 GET http://localhost:5000/api/v1/insert/
 
+###
+GET http://localhost:5000/api/v1/book/
+
