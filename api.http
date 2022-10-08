@@ -5,7 +5,7 @@ POST http://localhost:5000/api/v1/auth/register
 Content-Type: application/json
 
 {
-    "email": "admin2@gmail.com",
+    "email": "admin3@gmail.cocscsm",
     "password": "123123"
     
 }
