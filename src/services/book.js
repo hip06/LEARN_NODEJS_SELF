@@ -19,7 +19,7 @@ export const getBooks = ({ page, limit, order, name, available, ...query }) => n
             where: query,
             ...queries,
             attributes: {
-                exclude: ['category_code']
+                exclude: ['category_code', 'description']
             },
             include: [
                 { model: db.Category, attributes: { exclude: ['createdAt', 'updatedAt'] }, as: 'categoryData' }
@@ -42,7 +42,8 @@ export const createNewBook = (body, fileData) => new Promise(async (resolve, rej
             defaults: {
                 ...body,
                 id: generateId(),
-                image: fileData?.path
+                image: fileData?.path,
+                filename: fileData?.filename
             }
         })
         resolve({
@@ -56,4 +57,43 @@ export const createNewBook = (body, fileData) => new Promise(async (resolve, rej
     }
 })
 // UPDATE
+export const updateBook = ({ bid, ...body }, fileData) => new Promise(async (resolve, reject) => {
+    try {
+        if (fileData) body.image = fileData?.path
+        const response = await db.Book.update(body, {
+            where: { id: bid }
+        })
+        resolve({
+            err: response[0] > 0 ? 0 : 1,
+            mes: response[0] > 0 ? `${response[0]} book updated` : 'Cannot update new book/ Book ID not found',
+        })
+        if (fileData && response[0] === 0) cloudinary.uploader.destroy(fileData.filename)
+    } catch (error) {
+        reject(error)
+        if (fileData) cloudinary.uploader.destroy(fileData.filename)
+    }
+})
 // DELETE
+// [id1, id2]
+
+
+/*
+params = {
+    bids=[id1, id2],
+    filename=[filename1, filename2]
+}
+*/
+export const deleteBook = (bids, filename) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await db.Book.destroy({
+            where: { id: bids }
+        })
+        resolve({
+            err: response > 0 ? 0 : 1,
+            mes: `${response} book(s) deleted`
+        })
+        cloudinary.api.delete_resources(filename)
+    } catch (error) {
+        reject(error)
+    }
+})
